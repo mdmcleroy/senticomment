@@ -98,14 +98,6 @@ def get_comments(youtube, parent_id):
     
     return results["items"]
 
-# Call the API's comments.markAsSpam method to mark an existing comment as spam.
-def mark_as_spam(youtube, comment):
-    youtube.comments().markAsSpam(
-            id=comment["id"]
-            ).execute()
-
-    print "%s marked as spam succesfully" % (comment["id"])
-
 if __name__ == "__main__":
     # The "videoid" option specifies the YouTube video ID that uniquely
     # identifies the video for which the comment will be inserted.
