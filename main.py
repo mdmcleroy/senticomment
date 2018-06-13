@@ -54,7 +54,7 @@ def get_authenticated_service(args):
             message=MISSING_CLIENT_SECRETS_MESSAGE)
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
-  credentials = storage.get()
+    credentials = storage.get()
 
  if credentials is None or credentials.invalid:
      credentials = run_flow(flow, storage, args)
@@ -80,7 +80,7 @@ def get_comment_threads(youtube, video_id):
     text = comment["snippet"]["textDisplay"]
     print "Comment by %s: %s" % (author, text)
 
-  return results["items"]
+    return results["items"]
 
 
 # Call the API's comments.list method to list the existing comment replies.
@@ -95,8 +95,8 @@ def get_comments(youtube, parent_id):
         author = item["snippet"]["authorDisplayName"]
     text = item["snippet"]["textDisplay"]
     print "Comment by %s: %s" % (author, text)
-
-  return results["items"]
+    
+    return results["items"]
 
 
 # Call the API's comments.insert method to reply to a comment.
@@ -114,21 +114,21 @@ def insert_comment(youtube, parent_id, text):
             ).execute()
 
     author = insert_result["snippet"]["authorDisplayName"]
-  text = insert_result["snippet"]["textDisplay"]
-  print "Replied to a comment for %s: %s" % (author, text)
+    text = insert_result["snippet"]["textDisplay"]
+    print "Replied to a comment for %s: %s" % (author, text)
 
 
 # Call the API's comments.update method to update an existing comment.
 def update_comment(youtube, comment):
     comment["snippet"]["textOriginal"] = 'updated'
-  update_result = youtube.comments().update(
+    update_result = youtube.comments().update(
           part="snippet",
           body=comment
           ).execute()
 
-  author = update_result["snippet"]["authorDisplayName"]
-  text = update_result["snippet"]["textDisplay"]
-  print "Updated comment for %s: %s" % (author, text)
+    author = update_result["snippet"]["authorDisplayName"]
+    text = update_result["snippet"]["textDisplay"]
+    print "Updated comment for %s: %s" % (author, text)
 
 
 # Call the API's comments.setModerationStatus method to set moderation status of an
@@ -162,30 +162,30 @@ def delete_comment(youtube, comment):
 
 if __name__ == "__main__":
     # The "videoid" option specifies the YouTube video ID that uniquely
-  # identifies the video for which the comment will be inserted.
-  argparser.add_argument("--videoid",
+    # identifies the video for which the comment will be inserted.
+    argparser.add_argument("--videoid",
           help="Required; ID for video for which the comment will be inserted.")
-  # The "text" option specifies the text that will be used as comment.
-  argparser.add_argument("--text", help="Required; text that will be used as comment.")
-  args = argparser.parse_args()
+    # The "text" option specifies the text that will be used as comment.
+    argparser.add_argument("--text", help="Required; text that will be used as comment.")
+    args = argparser.parse_args()
 
-  if not args.videoid:
-      exit("Please specify videoid using the --videoid= parameter.")
-  if not args.text:
-      exit("Please specify text using the --text= parameter.")
+    if not args.videoid:
+        exit("Please specify videoid using the --videoid= parameter.")
+    if not args.text:
+        exit("Please specify text using the --text= parameter.")
 
-  youtube = get_authenticated_service(args)
-  # All the available methods are used in sequence just for the sake of an example.
-  try:
-      video_comment_threads = get_comment_threads(youtube, args.videoid)
-      parent_id = video_comment_threads[0]["id"]
-      insert_comment(youtube, parent_id, args.text)
-      video_comments = get_comments(youtube, parent_id)
-      update_comment(youtube, video_comments[0])
-      set_moderation_status(youtube, video_comments[0])
-      mark_as_spam(youtube, video_comments[0])
-      delete_comment(youtube, video_comments[0])
-  except HttpError, e:
-      print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-  else:
-      print "Inserted, listed, updated, moderated, marked and deleted comments."
+    youtube = get_authenticated_service(args)
+    # All the available methods are used in sequence just for the sake of an example.
+    try:
+        video_comment_threads = get_comment_threads(youtube, args.videoid)
+        parent_id = video_comment_threads[0]["id"]
+        insert_comment(youtube, parent_id, args.text)
+        video_comments = get_comments(youtube, parent_id)
+        update_comment(youtube, video_comments[0])
+        set_moderation_status(youtube, video_comments[0])
+        mark_as_spam(youtube, video_comments[0])
+        delete_comment(youtube, video_comments[0])
+    except HttpError, e:
+        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+    else:
+        print "Inserted, listed, updated, moderated, marked and deleted comments."
