@@ -150,16 +150,6 @@ def mark_as_spam(youtube, comment):
 
     print "%s marked as spam succesfully" % (comment["id"])
 
-
-# Call the API's comments.delete method to delete an existing comment.
-def delete_comment(youtube, comment):
-    youtube.comments().delete(
-            id=comment["id"]
-            ).execute()
-
-    print "%s deleted succesfully" % (comment["id"])
-
-
 if __name__ == "__main__":
     # The "videoid" option specifies the YouTube video ID that uniquely
     # identifies the video for which the comment will be inserted.
