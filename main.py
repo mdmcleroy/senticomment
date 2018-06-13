@@ -98,26 +98,6 @@ def get_comments(youtube, parent_id):
     
     return results["items"]
 
-
-# Call the API's comments.insert method to reply to a comment.
-# (If the intention is to create a new to-level comment, commentThreads.insert
-# method should be used instead.)
-def insert_comment(youtube, parent_id, text):
-    insert_result = youtube.comments().insert(
-            part="snippet",
-            body=dict(
-                snippet=dict(
-                    parentId=parent_id,
-                    textOriginal=text
-                    )
-                )
-            ).execute()
-
-    author = insert_result["snippet"]["authorDisplayName"]
-    text = insert_result["snippet"]["textDisplay"]
-    print "Replied to a comment for %s: %s" % (author, text)
-
-
 # Call the API's comments.update method to update an existing comment.
 def update_comment(youtube, comment):
     comment["snippet"]["textOriginal"] = 'updated'
