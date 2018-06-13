@@ -98,17 +98,6 @@ def get_comments(youtube, parent_id):
     
     return results["items"]
 
-# Call the API's comments.setModerationStatus method to set moderation status of an
-# existing comment.
-def set_moderation_status(youtube, comment):
-    youtube.comments().setModerationStatus(
-            id=comment["id"],
-            moderationStatus="published"
-            ).execute()
-
-    print "%s moderated succesfully" % (comment["id"])
-
-
 # Call the API's comments.markAsSpam method to mark an existing comment as spam.
 def mark_as_spam(youtube, comment):
     youtube.comments().markAsSpam(
