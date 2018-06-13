@@ -56,13 +56,13 @@ def get_authenticated_service(args):
     storage = Storage("%s-oauth2.json" % sys.argv[0])
     credentials = storage.get()
 
- if credentials is None or credentials.invalid:
-     credentials = run_flow(flow, storage, args)
+    if credentials is None or credentials.invalid:
+        credentials = run_flow(flow, storage, args)
 
   # Trusted testers can download this discovery document from the developers page
   # and it should be in the same directory with the code.
- with open("youtube-v3-discoverydocument.json", "r") as f:
-     doc = f.read()
+     with open("youtube-v3-discoverydocument.json", "r") as f:
+        doc = f.read()
     return build_from_document(doc, http=credentials.authorize(httplib2.Http()))
 
 
@@ -117,12 +117,7 @@ if __name__ == "__main__":
     try:
         video_comment_threads = get_comment_threads(youtube, args.videoid)
         parent_id = video_comment_threads[0]["id"]
-        insert_comment(youtube, parent_id, args.text)
         video_comments = get_comments(youtube, parent_id)
-        update_comment(youtube, video_comments[0])
-        set_moderation_status(youtube, video_comments[0])
-        mark_as_spam(youtube, video_comments[0])
-        delete_comment(youtube, video_comments[0])
     except HttpError, e:
         print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
     else:
