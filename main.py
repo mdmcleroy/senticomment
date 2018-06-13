@@ -98,19 +98,6 @@ def get_comments(youtube, parent_id):
     
     return results["items"]
 
-# Call the API's comments.update method to update an existing comment.
-def update_comment(youtube, comment):
-    comment["snippet"]["textOriginal"] = 'updated'
-    update_result = youtube.comments().update(
-          part="snippet",
-          body=comment
-          ).execute()
-
-    author = update_result["snippet"]["authorDisplayName"]
-    text = update_result["snippet"]["textDisplay"]
-    print "Updated comment for %s: %s" % (author, text)
-
-
 # Call the API's comments.setModerationStatus method to set moderation status of an
 # existing comment.
 def set_moderation_status(youtube, comment):
