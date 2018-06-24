@@ -68,6 +68,8 @@ def get_authenticated_service(args):
 
 # Call the API's commentThreads.list method to list the existing comment threads.
 def get_comment_threads(youtube, video_id):
+    comments = []
+
     results = youtube.commentThreads().list(
             part="snippet",
             videoId=video_id,
@@ -76,49 +78,40 @@ def get_comment_threads(youtube, video_id):
 
     for item in results["items"]:
         comment = item["snippet"]["topLevelComment"]
-    author = comment["snippet"]["authorDisplayName"]
-    text = comment["snippet"]["textDisplay"]
-    print "Comment by %s: %s" % (author, text)
+        text = comment["snippet"]["textDisplay"]
+        comments.append(text)
 
-    return results["items"]
+    while ("nextPageToken" in results):
+        results = youtube.commentThreads().list(
+                part = "snippet",
+                videoId = video_id,
+                pageToken = results["nextPageToken"],
+                textFormat = "plainText"
+        ).execute() 
 
+        for item in results["items"]:
+            comment = item["snippet"]["topLevelComment"]
+            text = comment["snippet"]["textDisplay"]
+            comments.append(text)
 
-# Call the API's comments.list method to list the existing comment replies.
-def get_comments(youtube, parent_id):
-    results = youtube.comments().list(
-            part="snippet",
-            parentId=parent_id,
-            textFormat="plainText"
-            ).execute()
-
-    for item in results["items"]:
-        author = item["snippet"]["authorDisplayName"]
-    text = item["snippet"]["textDisplay"]
-    print "Comment by %s: %s" % (author, text)
-    
-    return results["items"]
+    return comments
 
 if __name__ == "__main__":
-    # The "videoid" option specifies the YouTube video ID that uniquely
-    # identifies the video for which the comment will be inserted.
     argparser.add_argument("--videoid",
           help="Required; ID for video for which the comment will be inserted.")
-    # The "text" option specifies the text that will be used as comment.
-    argparser.add_argument("--text", help="Required; text that will be used as comment.")
     args = argparser.parse_args()
 
     if not args.videoid:
         exit("Please specify videoid using the --videoid= parameter.")
-    if not args.text:
-        exit("Please specify text using the --text= parameter.")
-
+    
     youtube = get_authenticated_service(args)
+
     # All the available methods are used in sequence just for the sake of an example.
     try:
         video_comment_threads = get_comment_threads(youtube, args.videoid)
-        parent_id = video_comment_threads[0]["id"]
-        video_comments = get_comments(youtube, parent_id)
+        print(video_comment_threads)
+        print(len(video_comment_threads)
     except HttpError, e:
         print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
     else:
-        print "Inserted, listed, updated, moderated, marked and deleted comments."
+        print("Inserted, listed, updated, moderated, marked and deleted comments.")
