@@ -59,27 +59,17 @@ def get_comment_threads(youtube, video_id):
             textFormat="plainText"
             ).execute()
 
-    // You got here. Finish this later.
-    
     for item in results["items"]:
         comment = item["snippet"]["topLevelComment"]
         text = comment["snippet"]["textDisplay"]
         comments.append(text)
 
-    while ("nextPageToken" in results):
-        results = youtube.commentThreads().list(
-                part = "snippet",
-                videoId = video_id,
-                pageToken = results["nextPageToken"],
-                textFormat = "plainText"
-        ).execute() 
+    if "nextPageToken" in results:
+        return get_comment_threads(youtube, video_id, comments,
+                                   results["nextPageToken"])
+    else:
+        return comments
 
-        for item in results["items"]:
-            comment = item["snippet"]["topLevelComment"]
-            text = comment["snippet"]["textDisplay"]
-            comments.append(text)
-
-    return comments
 
 if __name__ == "__main__":
     argparser.add_argument("--videoid",
@@ -91,12 +81,14 @@ if __name__ == "__main__":
     
     youtube = get_authenticated_service(args)
 
-    # All the available methods are used in sequence just for the sake of an example.
     try:
         video_comment_threads = get_comment_threads(youtube, args.videoid)
-        print(video_comment_threads)
-        print(len(video_comment_threads)
-    except HttpError, e:
-        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-    else:
-        print("Inserted, listed, updated, moderated, marked and deleted comments.")
+        analysis = SentimentIntensityAnalyzer()
+        with open('analysis.csv', 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            for comment in video_comment_threads:
+                score = analysis.polarity_scores(comment)
+                writer.writerow([comment, score["analysis"]])
+        print("Wrote sentiments of {0} comments to analysis.csv".format(len(video_comment_threads)))
+    except (HttpError, e):
+        print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
